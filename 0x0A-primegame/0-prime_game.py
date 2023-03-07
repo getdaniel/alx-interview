@@ -14,32 +14,41 @@ def isWinner(x, nums):
     - Name of the player that won the most rounds.
       If the winner cannot be determined, return None.
     """
-    wins = {"Maria": 0, "Ben": 0}
-    for n in nums:
-        # initialize a list of booleans to keep track of which numbers are prime
-        primes = [True] * (n+1)
-        primes[0] = primes[1] = False
-        # mark all multiples of primes as composite
-        for i in range(2, int(n**0.5)+1):
-            if primes[i]:
-                for j in range(i*i, n+1, i):
-                    primes[j] = False
-        turn = 0  # 0 for Maria, 1 for Ben
-        while True:
-            # find the smallest remaining prime
-            p = next((p for p in range(2, n+1) if primes[p]), None)
-            if not p:
-                # no more primes left, the current player loses
-                wins["Ben" if turn == 0 else "Maria"] += 1
-                break
-            # remove p and its multiples from the set
-            for i in range(p, n+1, p):
-                primes[i] = False
-            # switch to the other player's turn
-            turn = 1 - turn
-    if wins["Maria"] > wins["Ben"]:
-        return "Maria"
-    elif wins["Maria"] < wins["Ben"]:
-        return "Ben"
-    else:
+    # Check for invalid input
+    if x < 1 or not nums:
         return None
+
+    # Initialize counters for Maria and Ben's wins
+    marias_wins = 0
+    bens_wins = 0
+
+    # Play the game for each round
+    for i in range(x):
+        n = nums[i]  # Get the value of n for this round
+        primes = [True] * (n+1)  # Initialize a list of primes
+
+        # Use the Sieve of Eratosthenes algorithm to generate primes
+        for p in range(2, int(n**0.5)+1):
+            if primes[p]:
+                for i in range(p*p, n+1, p):
+                    primes[i] = False
+
+        # Count the number of primes in the range [1, n]
+        primes_count = 0
+        for j in range(2, n+1):
+            if primes[j]:
+                primes_count += 1
+
+        # Determine the winner of this round
+        if primes_count % 2 == 1:
+            marias_wins += 1
+        else:
+            bens_wins += 1
+
+    # Determine the overall winner
+    if marias_wins == bens_wins:
+        return None
+    elif marias_wins > bens_wins:
+        return 'Maria'
+    else:
+        return 'Ben'
